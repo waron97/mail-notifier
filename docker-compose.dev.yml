@@ -1,0 +1,56 @@
+services:
+    backend:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        container_name: mail-notify-back-end
+        ports:
+            - '3333:3333'
+        environment:
+            - PORT=3333
+            - MONGO_URL=mail-notify-mongo:27017
+            - MONGO_USER=${MONGO_USER}
+            - MONGO_PASSWORD=${MONGO_PASSWORD}
+            - DB_NAME=${DB_NAME}
+            - JWT_SECRET=${JWT_SECRET}
+            - NODE_ENV=development
+            - SES_KEY=${SES_KEY}
+            - SES_SECRET=${SES_SECRET}
+            - MASTER_API_KEY=${MASTER_API_KEY}
+            - S3_KEY=${S3_KEY}
+            - S3_SECRET=${S3_SECRET}
+            - OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID}
+            - OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}
+            - OAUTH_AUTH_URL=${OAUTH_AUTH_URL}
+        networks:
+            - backend
+        volumes:
+            - ./out:/usr/app/out
+        develop:
+            watch:
+                - path: ./src
+                  target: /usr/app/src
+                  action: sync+restart
+                  ignore:
+                      - '**/*.rest'
+                - path: ./package.json
+                  target: /usr/app/package.json
+                  action: rebuild
+
+    mongo:
+        container_name: mail-notify-mongo
+        image: mongo:7
+        networks:
+            - backend
+        ports:
+            - '27017:27017'
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+        command: mongod --quiet --logpath /dev/null
+        volumes:
+            - ./mongodata:/data/db
+
+networks:
+    backend:
+        driver: bridge
