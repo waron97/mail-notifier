@@ -6,6 +6,7 @@ services:
         container_name: mail-notify-back-end
         ports:
             - '3334:3333'
+        restart: unless-stopped
         environment:
             - PORT=3333
             - MONGO_URL=mail-notify-mongo:27017
@@ -30,6 +31,7 @@ services:
     mongo:
         container_name: mail-notify-mongo
         image: mongo:7
+        restart: unless-stopped
         networks:
             - backend
         ports:
