@@ -55,6 +55,26 @@ export async function getEmails(key: KeyDocument): Promise<GmailDocument[]> {
                 typeof htmlPart?.body?.data === 'string'
                     ? urlB64Decode(htmlPart?.body.data)
                     : ''
+        } else if (mail.data.payload?.mimeType === 'multipart/mixed') {
+            const parts = mail.data.payload?.parts ?? []
+            const innerParts = parts.find(
+                (p) => p.mimeType === 'multipart/alternative',
+            )?.parts
+
+            const textPart = innerParts?.find(
+                (part) => part.mimeType === 'text/plain',
+            )
+            const htmlPart = innerParts?.find(
+                (part) => part.mimeType === 'text/html',
+            )
+            textPlain =
+                typeof textPart?.body?.data === 'string'
+                    ? urlB64Decode(textPart.body.data)
+                    : ''
+            textHtml =
+                typeof htmlPart?.body?.data === 'string'
+                    ? urlB64Decode(htmlPart?.body.data)
+                    : ''
         } else if (mail.data.payload?.mimeType === 'text/html') {
             textHtml = urlB64Decode(mail.data.payload.body?.data as string)
         }
