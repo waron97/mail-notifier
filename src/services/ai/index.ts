@@ -8,7 +8,8 @@ const client = new OpenAI({
     apiKey: OPENAI_KEY,
 })
 
-const defaultIntro = ''
+const defaultIntro =
+    'I am a teacher in an Italian school. Emails coming from the school system and those coming from real people are very important to me.'
 
 export async function getEmailSummary(
     email: string,
@@ -19,8 +20,7 @@ export async function getEmailSummary(
         messages: [
             {
                 role: 'system',
-                content:
-                    "Sei un'assistente per semplificare la gestione delle e-mail.",
+                content: 'You are a helpful assistant for managing emails.',
             },
             {
                 role: 'user',
@@ -29,16 +29,15 @@ export async function getEmailSummary(
             {
                 role: 'user',
                 content: [
-                    `Mittente: ${sender}`,
+                    `Sender: ${sender}`,
                     '',
                     email,
                     '',
                     '',
                     [
-                        'Riassumi il contenuto della mail sopra in massimo 2 o 3 frasi.',
-                        'Se si tratta di una mail di marketing, dimmi solo "email di marketing".',
-                        'Se si tratta di un messaggio di sistema, per esempio codici di verifica o notifiche di accesso, dimmi solo "messaggio di sistema".',
-                        'Se è una mail personale, oppure contiene informazioni importanti, inizia il riassunto con "Importante!"',
+                        'Give a summary of 1 or 2 sentences for the email above.',
+                        'If it\'s marketing or an ad, or an automatic notification of purchases, logins, or similar, just write "Automated email"',
+                        'If it\'s a personal email or it contains information that\'s important to me, start the summary with "Important!"',
                     ].join(' '),
                 ].join('\n'),
             },
@@ -64,8 +63,7 @@ export async function generateReport(
         messages: [
             {
                 role: 'system',
-                content:
-                    "Sei un'assistente per semplificare la gestione delle e-mail.",
+                content: 'You are a helpful assistant for managing emails.',
             },
             {
                 role: 'user',
@@ -74,13 +72,14 @@ export async function generateReport(
             {
                 role: 'user',
                 content: [
-                    'Queste sono le mail che ho ricevuto nelle ultime ore:',
+                    'These are the emails I received in the past hours:',
                     '',
                     '',
                     ...emails.map(getEmailLines),
                     '',
                     '',
-                    'Scrivi un breve riassunto di 1 o 2 paragrafi delle mail sopra, evidenziando le comunicazioni importanti.',
+                    'You can ignore marketing or system messages, such as login stuff, purchases, and so on.',
+                    'Write a brief summary (1 or 2 paragraphs) of these messages.',
                 ].join('\n'),
             },
         ],

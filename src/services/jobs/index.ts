@@ -43,13 +43,10 @@ export async function scanEmails() {
                 },
             )
 
-            if (summary.includes('Importante!')) {
+            if (summary.includes('Important!')) {
                 sendMessage(
                     doc.chatId,
                     [
-                        'Hai ricevuto una mail che potrebbe essere importante',
-                        '',
-                        '',
                         `Mittente: ${email.from}`,
                         `Ora: ${dayjs(email.date).format('HH:mm')}`,
                         `${summary}`,
