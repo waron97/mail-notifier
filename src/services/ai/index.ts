@@ -35,7 +35,8 @@ export async function getEmailSummary(
                     '',
                     '',
                     [
-                        'Give a summary of 1 or 2 sentences for the email above.',
+                        'Give a summary of 1 or 2 sentences for the email or thread above.',
+                        'For email threads, the more recent emails come first, so focus on those.',
                         'If it\'s marketing or an ad, or an automatic notification of purchases, logins, or similar, just write "Automated email"',
                         'If it\'s a personal email or it contains information that\'s important to me, start the summary with "Important!"',
                     ].join(' '),
