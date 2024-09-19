@@ -71,7 +71,10 @@ export async function sendReports() {
     for await (const key of docs) {
         const summary = await createReport(key)
         if (summary) {
-            sendMessage(key.chatId, summary.text)
+            sendMessage(
+                key.chatId,
+                `Here's your daily recap:\n\n${summary.text}`,
+            )
         } else {
             sendMessage(key.chatId, 'Nessuna mail ricevuta')
         }
