@@ -53,9 +53,9 @@ export async function generateReport(
 ): Promise<string> {
     const getEmailLines = (email: GmailDocument) => {
         return [
-            `Mittente: ${email.from}`,
-            `Data: ${dayjs(email.date).format('D MMM YY, HH:mm')}`,
-            `Contenuto: ${email.aiSummary || email.textPlain} || ${email.textHtml}`,
+            `Sender: ${email.from}`,
+            `Date: ${dayjs(email.date).format('D MMM YY, HH:mm')}`,
+            `Content: ${email.aiSummary || 'Summary not available'}`,
         ].join('\n')
     }
 
