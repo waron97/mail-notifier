@@ -9,4 +9,6 @@ d.extend(utc)
 d.extend(timezone)
 d.extend(customParseFormat)
 
+export const ITALY = 'Europe/Rome'
+
 export default d

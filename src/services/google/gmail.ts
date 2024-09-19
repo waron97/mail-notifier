@@ -1,8 +1,8 @@
-import dayjs from 'dayjs'
 import { google } from 'googleapis'
 
 import { GmailCollection, GmailDocument } from '@api/gmail/model'
 import { KeyDocument } from '@api/keys/model'
+import dayjs from '@services/dayjs'
 import { urlB64Decode } from '@services/decode'
 
 import { getClient } from '.'

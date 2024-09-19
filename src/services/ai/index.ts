@@ -2,7 +2,7 @@ import OpenAI from 'openai'
 
 import { GmailDocument } from '@api/gmail/model'
 import { OPENAI_KEY } from '@constants'
-import dayjs from '@services/dayjs'
+import dayjs, { ITALY } from '@services/dayjs'
 
 const client = new OpenAI({
     apiKey: OPENAI_KEY,
@@ -55,7 +55,7 @@ export async function generateReport(
     const getEmailLines = (email: GmailDocument) => {
         return [
             `Sender: ${email.from}`,
-            `Date: ${dayjs(email.date).format('D MMM YY, HH:mm')}`,
+            `Date: ${dayjs(email.date).tz(ITALY).format('D MMM YY, HH:mm')}`,
             `Content: ${email.aiSummary || 'Summary not available'}`,
         ].join('\n')
     }

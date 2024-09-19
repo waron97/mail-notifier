@@ -1,12 +1,16 @@
 import { GmailCollection } from '@api/gmail/model'
 import { KeyDocument } from '@api/keys/model'
 import { generateReport } from '@services/ai'
-import dayjs from '@services/dayjs'
+import dayjs, { ITALY } from '@services/dayjs'
 
 import { ReportsCollection } from './model'
 
 export const createReport = async (key: KeyDocument) => {
-    const threshold = dayjs().subtract(1, 'day').hour(20).startOf('hour')
+    const threshold = dayjs()
+        .subtract(1, 'day')
+        .hour(20)
+        .startOf('hour')
+        .tz(ITALY)
     const emails = await GmailCollection.find({
         chatId: key.chatId,
         date: {

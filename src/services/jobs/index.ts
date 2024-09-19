@@ -2,9 +2,10 @@ import cron from 'node-cron'
 
 import { GmailCollection } from '@api/gmail/model'
 import { KeysCollection } from '@api/keys/model'
+import { logger } from '@api/logs/sevice'
 import { createReport } from '@api/reports/service'
 import { getEmailSummary } from '@services/ai'
-import dayjs from '@services/dayjs'
+import dayjs, { ITALY } from '@services/dayjs'
 import { getEmails } from '@services/google/gmail'
 import { sendMessage } from '@services/telegram'
 
@@ -18,6 +19,9 @@ export function scheduleJobs() {
 }
 
 export async function scanEmails() {
+    // eslint-disable-next-line
+    logger.log('[Job Start] scanEmails')
+
     const docs = KeysCollection.find({ oauth: { $exists: true } })
     for await (const doc of docs) {
         const emails = await getEmails(doc)
@@ -51,7 +55,7 @@ export async function scanEmails() {
                     doc.chatId,
                     [
                         `Mittente: ${email.from}`,
-                        `Ora: ${dayjs(email.date).format('HH:mm')}`,
+                        `Ora: ${dayjs(email.date).tz(ITALY).format('HH:mm')}`,
                         `${summary}`,
                     ].join('\n'),
                 )
@@ -61,6 +65,8 @@ export async function scanEmails() {
 }
 
 export async function sendReports() {
+    // eslint-disable-next-line
+    logger.log('[Job Start] sendReports')
     const docs = KeysCollection.find({ oauth: { $exists: true } })
     for await (const key of docs) {
         const summary = await createReport(key)
