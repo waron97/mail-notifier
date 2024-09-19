@@ -40,7 +40,10 @@ export async function getEmails(key: KeyDocument): Promise<GmailDocument[]> {
         let textPlain: string = ''
         let textHtml: string = ''
 
-        if (mail.data.payload?.mimeType === 'multipart/alternative') {
+        if (
+            mail.data.payload?.mimeType === 'multipart/alternative' ||
+            mail.data.payload?.mimeType === 'multipart/related'
+        ) {
             const textPart = mail.data.payload?.parts?.find(
                 (part) => part.mimeType === 'text/plain',
             )
@@ -61,12 +64,12 @@ export async function getEmails(key: KeyDocument): Promise<GmailDocument[]> {
                 (p) => p.mimeType === 'multipart/alternative',
             )?.parts
 
-            const textPart = innerParts?.find(
-                (part) => part.mimeType === 'text/plain',
-            )
-            const htmlPart = innerParts?.find(
-                (part) => part.mimeType === 'text/html',
-            )
+            const textPart =
+                parts?.find((part) => part.mimeType === 'text/plain') ||
+                innerParts?.find((part) => part.mimeType === 'text/plain')
+            const htmlPart =
+                parts?.find((part) => part.mimeType === 'text/html') ||
+                innerParts?.find((part) => part.mimeType === 'text/html')
             textPlain =
                 typeof textPart?.body?.data === 'string'
                     ? urlB64Decode(textPart.body.data)
