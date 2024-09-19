@@ -43,7 +43,10 @@ export async function scanEmails() {
                 },
             )
 
-            if (summary.includes('Important!')) {
+            if (
+                summary.includes('Important!') &&
+                email.gmailLabels.includes('UNREAD')
+            ) {
                 sendMessage(
                     doc.chatId,
                     [

@@ -105,6 +105,7 @@ export async function getEmails(key: KeyDocument): Promise<GmailDocument[]> {
             subject,
             textHtml,
             textPlain,
+            gmailLabels: mail.data.labelIds || [],
             rawResponse: mail.data,
         })
 

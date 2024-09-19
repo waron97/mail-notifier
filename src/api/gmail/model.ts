@@ -14,6 +14,7 @@ export type Gmail = {
     textPlain: string
     textHtml: string
     subject: string
+    gmailLabels: string[]
     aiSummary?: string
 }
 
