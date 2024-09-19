@@ -9,7 +9,7 @@ import { getEmails } from '@services/google/gmail'
 import { sendMessage } from '@services/telegram'
 
 export function scheduleJobs() {
-    cron.schedule('*/10 * * * *', scanEmails, {
+    cron.schedule('*/3 * * * *', scanEmails, {
         timezone: 'Europe/Rome',
     })
     cron.schedule('0 20 * * *', sendReports, {
