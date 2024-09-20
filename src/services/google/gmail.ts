@@ -1,4 +1,4 @@
-import { google } from 'googleapis'
+import { gmail_v1, google } from 'googleapis'
 
 import { GmailCollection, GmailDocument } from '@api/gmail/model'
 import { KeyDocument } from '@api/keys/model'
@@ -40,46 +40,19 @@ export async function getEmails(key: KeyDocument): Promise<GmailDocument[]> {
         let textPlain: string = ''
         let textHtml: string = ''
 
-        if (
-            mail.data.payload?.mimeType === 'multipart/alternative' ||
-            mail.data.payload?.mimeType === 'multipart/related'
-        ) {
-            const textPart = mail.data.payload?.parts?.find(
-                (part) => part.mimeType === 'text/plain',
-            )
-            const htmlPart = mail.data.payload?.parts?.find(
-                (part) => part.mimeType === 'text/html',
-            )
-            textPlain =
-                typeof textPart?.body?.data === 'string'
-                    ? urlB64Decode(textPart.body.data)
-                    : ''
-            textHtml =
-                typeof htmlPart?.body?.data === 'string'
-                    ? urlB64Decode(htmlPart?.body.data)
-                    : ''
-        } else if (mail.data.payload?.mimeType === 'multipart/mixed') {
-            const parts = mail.data.payload?.parts ?? []
-            const innerParts = parts.find(
-                (p) => p.mimeType === 'multipart/alternative',
-            )?.parts
-
-            const textPart =
-                parts?.find((part) => part.mimeType === 'text/plain') ||
-                innerParts?.find((part) => part.mimeType === 'text/plain')
-            const htmlPart =
-                parts?.find((part) => part.mimeType === 'text/html') ||
-                innerParts?.find((part) => part.mimeType === 'text/html')
-            textPlain =
-                typeof textPart?.body?.data === 'string'
-                    ? urlB64Decode(textPart.body.data)
-                    : ''
-            textHtml =
-                typeof htmlPart?.body?.data === 'string'
-                    ? urlB64Decode(htmlPart?.body.data)
-                    : ''
-        } else if (mail.data.payload?.mimeType === 'text/html') {
+        if (mail.data.payload?.mimeType === 'text/html') {
             textHtml = urlB64Decode(mail.data.payload.body?.data as string)
+        } else {
+            textPlain =
+                extractEmailContent(
+                    mail.data.payload?.parts || [],
+                    'text/plain',
+                ) || ''
+            textHtml =
+                extractEmailContent(
+                    mail.data.payload?.parts || [],
+                    'text/html',
+                ) || ''
         }
 
         const ts = parseInt(mail.data.internalDate as string, 10) as number
@@ -113,4 +86,22 @@ export async function getEmails(key: KeyDocument): Promise<GmailDocument[]> {
     }
 
     return parsedEmails
+}
+
+function extractEmailContent(
+    parts: gmail_v1.Schema$MessagePart[],
+    mimeType: string,
+): string | null {
+    const found = parts.find((p) => p.mimeType === mimeType)
+    if (found) {
+        return urlB64Decode(found.body?.data || '')
+    } else {
+        for (const part of parts) {
+            const drill = extractEmailContent(part.parts || [], mimeType)
+            if (drill !== null) {
+                return drill
+            }
+        }
+    }
+    return null
 }
