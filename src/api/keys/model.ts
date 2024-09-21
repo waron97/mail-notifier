@@ -1,4 +1,5 @@
 import { GetTokenResponse } from 'google-auth-library/build/src/auth/oauth2client'
+import { oauth2_v2 } from 'googleapis'
 import { ObjectId } from 'mongodb'
 
 import db from '@services/mongo'
@@ -7,6 +8,7 @@ export type Key = {
     oauth: GetTokenResponse['tokens']
     chatId: number
     introduction?: string
+    userInfo: oauth2_v2.Schema$Userinfo
 }
 
 export type KeyDocument = Key & {

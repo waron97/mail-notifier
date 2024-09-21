@@ -30,10 +30,12 @@ export async function scanEmails() {
             return dayjs(m.date).isAfter(threshold)
         })
 
+        const userEmail = doc.userInfo.email || ''
+
         for (const email of recentEmails) {
             const { textPlain, textHtml, aiSummary, from } = email
 
-            if (aiSummary) {
+            if (aiSummary || from.includes(userEmail)) {
                 continue
             }
 

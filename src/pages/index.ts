@@ -3,7 +3,7 @@ import { readFile } from 'fs/promises'
 import Mustache from 'mustache'
 
 import { KeysCollection } from '@api/keys/model'
-import { getTokens } from '@services/google'
+import { getTokens, getUserInfo } from '@services/google'
 import { sendMessage } from '@services/telegram'
 
 const pages = Router()
@@ -20,6 +20,7 @@ pages.get('/', (req, res, next) => {
 
 pages.get('/redirect', async (req, res, next) => {
     const tokens = await getTokens(req.query.code as string)
+    const userInfo = await getUserInfo(undefined, tokens)
     const chatId = parseInt(req.query.state as string, 10)
 
     if (await KeysCollection.findOne({ chatId })) {
@@ -28,6 +29,7 @@ pages.get('/redirect', async (req, res, next) => {
             {
                 $set: {
                     oauth: tokens,
+                    userInfo,
                 },
             },
         )
@@ -35,6 +37,7 @@ pages.get('/redirect', async (req, res, next) => {
         await KeysCollection.insertOne({
             oauth: tokens,
             chatId,
+            userInfo,
         })
     }
 
