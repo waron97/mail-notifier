@@ -19,39 +19,43 @@ pages.get('/', (req, res, next) => {
 })
 
 pages.get('/redirect', async (req, res, next) => {
-    const tokens = await getTokens(req.query.code as string)
-    const userInfo = await getUserInfo(undefined, tokens)
-    const chatId = parseInt(req.query.state as string, 10)
+    try {
+        const tokens = await getTokens(req.query.code as string)
+        const userInfo = await getUserInfo(undefined, tokens)
+        const chatId = parseInt(req.query.state as string, 10)
 
-    if (await KeysCollection.findOne({ chatId })) {
-        KeysCollection.updateOne(
-            { chatId },
-            {
-                $set: {
-                    oauth: tokens,
-                    userInfo,
+        if (await KeysCollection.findOne({ chatId })) {
+            KeysCollection.updateOne(
+                { chatId },
+                {
+                    $set: {
+                        oauth: tokens,
+                        userInfo,
+                    },
                 },
-            },
-        )
-    } else {
-        await KeysCollection.insertOne({
-            oauth: tokens,
-            chatId,
-            userInfo,
+            )
+        } else {
+            await KeysCollection.insertOne({
+                oauth: tokens,
+                chatId,
+                userInfo,
+            })
+        }
+
+        sendMessage(chatId, 'Accesso effettuato con successo')
+
+        readFile('src/pages/templates/redirect.mustache', {
+            encoding: 'utf-8',
         })
+            .then((value) => {
+                const template = Mustache.render(value, {})
+                res.setHeader('Content-Type', 'text/html')
+                res.send(template).status(200)
+            })
+            .catch(next)
+    } catch (err) {
+        next(err)
     }
-
-    sendMessage(chatId, 'Accesso effettuato con successo')
-
-    readFile('src/pages/templates/redirect.mustache', {
-        encoding: 'utf-8',
-    })
-        .then((value) => {
-            const template = Mustache.render(value, {})
-            res.setHeader('Content-Type', 'text/html')
-            res.send(template).status(200)
-        })
-        .catch(next)
 })
 
 export default pages
