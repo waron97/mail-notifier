@@ -1,6 +1,7 @@
 import { KeysCollection } from '@api/keys/model'
 import { createReport } from '@api/reports/service'
-import { getRedirectUri } from '@services/google'
+import { getClient, getRedirectUri, getUserInfo } from '@services/google'
+import { getEmails } from '@services/google/gmail'
 
 import { baseUrl, sendMessage } from '.'
 
@@ -66,6 +67,37 @@ async function processUpdate(update: Update) {
         )
         sendMessage(chatId, 'Introduzione impostata con successo.')
     }
+
+    if (text.startsWith('/health')) {
+        const key = await KeysCollection.findOne({ chatId })
+        if (key) {
+            try {
+                const client = await getClient(key.oauth)
+                const userInfo = await getUserInfo(client)
+                const lastEmails = await getEmails(key)
+                const msg = [
+                    'Health report',
+                    '',
+                    '',
+                    `${lastEmails.length} recent emails found`,
+                    '',
+                    '',
+                    JSON.stringify(userInfo),
+                ].join('\n')
+                sendMessage(chatId, msg)
+            } catch (err) {
+                if (err instanceof Error) {
+                    sendMessage(
+                        chatId,
+                        `Health check failed: ${err.message}\n\n${err.stack}`,
+                    )
+                } else {
+                    sendMessage(chatId, `Health check failed: ${err}`)
+                }
+            }
+        }
+    }
+
     if (text.startsWith('/report')) {
         const key = await KeysCollection.findOne({ chatId })
         if (key) {

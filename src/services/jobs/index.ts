@@ -26,6 +26,7 @@ export async function scanEmails() {
     for await (const doc of docs) {
         try {
             const emails = await getEmails(doc)
+
             const threshold = dayjs()
                 .subtract(1, 'day')
                 .hour(20)
@@ -71,6 +72,11 @@ export async function scanEmails() {
                 }
             }
         } catch (err) {
+            if (err instanceof Error) {
+                logger.error(
+                    `[ERR @ scanEmails] ${err.message}\n\n${err.stack}`,
+                )
+            }
             sendMessage(doc.chatId, `[ERR @ scanEmails] ${err}`)
         }
     }
