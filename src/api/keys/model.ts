@@ -9,6 +9,7 @@ export type Key = {
     chatId: number
     introduction?: string
     userInfo: oauth2_v2.Schema$Userinfo
+    lastScanState?: 'success' | 'error'
 }
 
 export type KeyDocument = Key & {

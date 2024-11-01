@@ -71,13 +71,30 @@ export async function scanEmails() {
                     )
                 }
             }
+            await KeysCollection.updateOne(
+                { _id: doc._id },
+                { $set: { lastScanState: 'success' } },
+            )
         } catch (err) {
             if (err instanceof Error) {
                 logger.error(
                     `[ERR @ scanEmails] ${err.message}\n\n${err.stack}`,
                 )
+                if (err.message.includes('invalid_grant')) {
+                    await KeysCollection.updateOne(
+                        { _id: doc._id },
+                        { $set: { lastScanState: 'error' } },
+                    )
+                    if (doc.lastScanState !== 'error') {
+                        sendMessage(
+                            doc.chatId,
+                            `Permesso scaduto per visualizzare le tue. Effettuare nuovamente l'autenticazione mandando il messaggio "/start".`,
+                        )
+                    }
+                } else {
+                    sendMessage(doc.chatId, `[ERR @ scanEmails] ${err}`)
+                }
             }
-            sendMessage(doc.chatId, `[ERR @ scanEmails] ${err}`)
         }
     }
 }
